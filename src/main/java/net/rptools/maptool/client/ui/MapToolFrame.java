@@ -76,6 +76,8 @@ import net.rptools.maptool.client.ui.htmlframe.HTMLOverlayPanel;
 import net.rptools.maptool.client.ui.lookuptable.LookupTablePanel;
 import net.rptools.maptool.client.ui.macrobuttons.buttons.MacroButton;
 import net.rptools.maptool.client.ui.macrobuttons.panels.*;
+import net.rptools.maptool.client.ui.multitouch.MapToolMT;
+import net.rptools.maptool.client.ui.multitouch.ZoneRendererOverlay;
 import net.rptools.maptool.client.ui.token.EditTokenDialog;
 import net.rptools.maptool.client.ui.tokenpanel.InitiativePanel;
 import net.rptools.maptool.client.ui.tokenpanel.TokenPanelTreeCellRenderer;
@@ -102,6 +104,8 @@ import net.rptools.maptool.util.ImageManager;
 import org.apache.commons.collections4.map.LinkedMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mt4j.util.logging.Log4jLogger;
+import org.mt4j.util.logging.MTLoggerFactory;
 import org.xml.sax.SAXException;
 
 /** */
@@ -147,6 +151,7 @@ public class MapToolFrame extends DefaultDockableHolder
   private final JPanel zoneRendererPanel;
   /** Contains the overlays that should be displayed in front of everything else. */
   private final PointerToolOverlay pointerToolOverlay;
+  private final ZoneRendererOverlay zoneRendererOverlay;
 
   private JPanel visibleControlPanel;
   private FullScreenFrame fullScreenFrame;
@@ -363,6 +368,10 @@ public class MapToolFrame extends DefaultDockableHolder
     // Notify duration
     initializeNotifyDuration();
 
+    //Multitouch
+    MTLoggerFactory.setLoggerProvider(new Log4jLogger());
+    MapToolMT mtApp = new MapToolMT(this);
+
     // Components
     glassPane = new GlassPane();
     assetPanel = createAssetPanel();
@@ -412,6 +421,8 @@ public class MapToolFrame extends DefaultDockableHolder
 
     zoneRendererPanel = new JPanel(new PositionalLayout(5));
     zoneRendererPanel.setBackground(Color.black);
+    zoneRendererOverlay = new ZoneRendererOverlay(mtApp);
+    zoneRendererPanel.add(new JLayer<ZoneRenderer>(null, zoneRendererOverlay), PositionalLayout.Position.CENTER);
     // zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
     // zoneRendererPanel.add(getChatTypingLabel(), PositionalLayout.Position.NW);
     zoneRendererPanel.add(getChatTypingPanel(), PositionalLayout.Position.NW);
@@ -1567,11 +1578,10 @@ public class MapToolFrame extends DefaultDockableHolder
       }
       oldZone = currentRenderer.getZone();
       currentRenderer.flush();
-      zoneRendererPanel.remove(currentRenderer);
+//      zoneRendererPanel.remove(currentRenderer);
     }
     if (renderer != null) {
-      zoneRendererPanel.add(
-          renderer, PositionalLayout.Position.CENTER, zoneRendererPanel.getComponentCount() - 1);
+      zoneRendererOverlay.getLayer().setView(renderer);
       zoneRendererPanel.doLayout();
     }
     currentRenderer = renderer;

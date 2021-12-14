@@ -767,6 +767,11 @@ public class ZoneRenderer extends JComponent
     MapTool.getFrame().getZoomStatusBar().update();
   }
 
+  public void zoomScale(int x, int y, double scale) {
+    zoneScale.zoomScale(x, y, scale);
+    MapTool.getFrame().getZoomStatusBar().update();
+  }
+
   public void setView(int x, int y, double scale) {
 
     setViewOffset(x, y);
