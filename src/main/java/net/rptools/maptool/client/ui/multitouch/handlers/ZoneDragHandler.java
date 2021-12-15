@@ -5,7 +5,6 @@ import org.mt4j.input.inputProcessors.MTGestureEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.dragProcessor.DragEvent;
 
 import java.awt.event.MouseEvent;
-import java.util.HashMap;
 import java.util.Map;
 
 public class ZoneDragHandler implements ZoneHandler<DragEvent> {
