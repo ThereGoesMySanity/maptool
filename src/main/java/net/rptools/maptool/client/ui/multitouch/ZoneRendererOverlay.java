@@ -14,35 +14,53 @@
  */
 package net.rptools.maptool.client.ui.multitouch;
 
+import net.rptools.maptool.client.ui.multitouch.handlers.ZoneDragHandler;
+import net.rptools.maptool.client.ui.multitouch.handlers.ZoneHandler;
+import net.rptools.maptool.client.ui.multitouch.handlers.ZonePanHandler;
+import net.rptools.maptool.client.ui.multitouch.handlers.ZoneZoomHandler;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import org.mt4j.AbstractMTApplication;
 import org.mt4j.AbstractMTLayer;
 import org.mt4j.input.inputProcessors.MTGestureEvent;
+import org.mt4j.input.inputProcessors.componentProcessors.dragProcessor.DragEvent;
+import org.mt4j.input.inputProcessors.componentProcessors.dragProcessor.DragProcessor;
+import org.mt4j.input.inputProcessors.componentProcessors.panProcessor.PanEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.panProcessor.PanProcessorTwoFingers;
 import org.mt4j.input.inputProcessors.componentProcessors.panProcessor.PanTwoFingerEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.zoomProcessor.ZoomEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.zoomProcessor.ZoomProcessor;
 
 import java.awt.geom.Point2D;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 
 public class ZoneRendererOverlay extends AbstractMTLayer<ZoneRenderer> {
+  private HashMap<Class<?>, ZoneHandler<?>> handlers;
   public ZoneRendererOverlay(AbstractMTApplication app) {
     super(app);
+    handlers = new HashMap<>();
     registerInputProcessor(new PanProcessorTwoFingers(500));
+    handlers.put(PanTwoFingerEvent.class, new ZonePanHandler());
     registerInputProcessor(new ZoomProcessor(500));
+    handlers.put(ZoomEvent.class, new ZoneZoomHandler());
+    registerInputProcessor(new DragProcessor());
+    handlers.put(DragEvent.class, new ZoneDragHandler());
   }
 
   @Override
   public boolean processGestureEvent(MTGestureEvent mtGestureEvent) {
+//    System.out.println(mtGestureEvent.toString() + " " + mtGestureEvent.getId());
     ZoneRenderer zoneRenderer = getLayer().getView();
-    if (mtGestureEvent instanceof PanTwoFingerEvent panEvent) {
-      zoneRenderer.moveViewBy((int)panEvent.getTranslationVector().x, (int)panEvent.getTranslationVector().y);
-    } else if (mtGestureEvent instanceof ZoomEvent zoomEvent) {
-      float centerX = (zoomEvent.getFirstCursor().getCurrentEvtPosX()
-              + zoomEvent.getSecondCursor().getCurrentEvtPosX()) / 2;
-      float centerY = (zoomEvent.getFirstCursor().getCurrentEvtPosY()
-              + zoomEvent.getSecondCursor().getCurrentEvtPosY()) / 2;
-      zoneRenderer.zoomScale((int)centerX, (int)centerY, zoneRenderer.getScale() * zoomEvent.getZoomRatio());
+    try {
+      Class<?> gestureType = mtGestureEvent.getClass();
+      if (handlers.containsKey(gestureType)) {
+        ZoneHandler<?> handler = handlers.get(gestureType);
+        handler.getClass()
+                .getDeclaredMethod("handleEvent", ZoneRenderer.class, gestureType)
+                .invoke(handler, zoneRenderer, mtGestureEvent);
+      }
+    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      e.printStackTrace();
     }
     return false;
   }
