@@ -14,10 +14,9 @@
  */
 package net.rptools.maptool.client.ui.multitouch;
 
+import javax.swing.*;
 import org.mt4j.AbstractMTApplication;
 import org.mt4j.input.inputProcessors.globalProcessors.CursorTracer;
-
-import javax.swing.*;
 
 public class MapToolMT extends AbstractMTApplication {
   public MapToolMT(JFrame window) {

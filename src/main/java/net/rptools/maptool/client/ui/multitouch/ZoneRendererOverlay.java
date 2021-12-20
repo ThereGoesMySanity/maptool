@@ -14,6 +14,8 @@
  */
 package net.rptools.maptool.client.ui.multitouch;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import net.rptools.maptool.client.ui.multitouch.handlers.ZoneDragHandler;
 import net.rptools.maptool.client.ui.multitouch.handlers.ZoneHandler;
 import net.rptools.maptool.client.ui.multitouch.handlers.ZonePanHandler;
@@ -24,18 +26,14 @@ import org.mt4j.AbstractMTLayer;
 import org.mt4j.input.inputProcessors.MTGestureEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.dragProcessor.DragEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.dragProcessor.DragProcessor;
-import org.mt4j.input.inputProcessors.componentProcessors.panProcessor.PanEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.panProcessor.PanProcessorTwoFingers;
 import org.mt4j.input.inputProcessors.componentProcessors.panProcessor.PanTwoFingerEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.zoomProcessor.ZoomEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.zoomProcessor.ZoomProcessor;
 
-import java.awt.geom.Point2D;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-
 public class ZoneRendererOverlay extends AbstractMTLayer<ZoneRenderer> {
   private HashMap<Class<?>, ZoneHandler<?>> handlers;
+
   public ZoneRendererOverlay(AbstractMTApplication app) {
     super(app);
     handlers = new HashMap<>();
@@ -49,15 +47,16 @@ public class ZoneRendererOverlay extends AbstractMTLayer<ZoneRenderer> {
 
   @Override
   public boolean processGestureEvent(MTGestureEvent mtGestureEvent) {
-//    System.out.println(mtGestureEvent.toString() + " " + mtGestureEvent.getId());
+    //    System.out.println(mtGestureEvent.toString() + " " + mtGestureEvent.getId());
     ZoneRenderer zoneRenderer = getLayer().getView();
     try {
       Class<?> gestureType = mtGestureEvent.getClass();
       if (handlers.containsKey(gestureType)) {
         ZoneHandler<?> handler = handlers.get(gestureType);
-        handler.getClass()
-                .getDeclaredMethod("handleEvent", ZoneRenderer.class, gestureType)
-                .invoke(handler, zoneRenderer, mtGestureEvent);
+        handler
+            .getClass()
+            .getDeclaredMethod("handleEvent", ZoneRenderer.class, gestureType)
+            .invoke(handler, zoneRenderer, mtGestureEvent);
       }
     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       e.printStackTrace();

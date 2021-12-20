@@ -151,6 +151,7 @@ public class MapToolFrame extends DefaultDockableHolder
   private final JPanel zoneRendererPanel;
   /** Contains the overlays that should be displayed in front of everything else. */
   private final PointerToolOverlay pointerToolOverlay;
+
   private final ZoneRendererOverlay zoneRendererOverlay;
 
   private JPanel visibleControlPanel;
@@ -368,7 +369,7 @@ public class MapToolFrame extends DefaultDockableHolder
     // Notify duration
     initializeNotifyDuration();
 
-    //Multitouch
+    // Multitouch
     MTLoggerFactory.setLoggerProvider(new Log4jLogger());
     MapToolMT mtApp = new MapToolMT(this);
 
@@ -422,7 +423,8 @@ public class MapToolFrame extends DefaultDockableHolder
     zoneRendererPanel = new JPanel(new PositionalLayout(5));
     zoneRendererPanel.setBackground(Color.black);
     zoneRendererOverlay = new ZoneRendererOverlay(mtApp);
-    zoneRendererPanel.add(new JLayer<ZoneRenderer>(null, zoneRendererOverlay), PositionalLayout.Position.CENTER);
+    zoneRendererPanel.add(
+        new JLayer<ZoneRenderer>(null, zoneRendererOverlay), PositionalLayout.Position.CENTER);
     // zoneRendererPanel.add(zoneMiniMapPanel, PositionalLayout.Position.SE);
     // zoneRendererPanel.add(getChatTypingLabel(), PositionalLayout.Position.NW);
     zoneRendererPanel.add(getChatTypingPanel(), PositionalLayout.Position.NW);
@@ -1578,7 +1580,7 @@ public class MapToolFrame extends DefaultDockableHolder
       }
       oldZone = currentRenderer.getZone();
       currentRenderer.flush();
-//      zoneRendererPanel.remove(currentRenderer);
+      //      zoneRendererPanel.remove(currentRenderer);
     }
     if (renderer != null) {
       zoneRendererOverlay.getLayer().setView(renderer);
