@@ -457,7 +457,7 @@ dependencies {
     implementation 'com.google.guava:guava:31.0.1-jre'
 
     //implementation 'org.mt4j:mt4j-light:1.0'
-    implementation 'com.github.ThereGoesMySanity:mt4j-light:d4819101f9'
+    implementation 'com.github.ThereGoesMySanity:mt4j-light:5bb9254b27'
 }
 
 

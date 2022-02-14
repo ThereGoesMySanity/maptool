@@ -14,7 +14,9 @@
  */
 package net.rptools.maptool.client.ui.multitouch.handlers;
 
+import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
+import javax.swing.SwingUtilities;
 import java.util.Map;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import org.mt4j.input.inputProcessors.MTGestureEvent;
@@ -31,17 +33,29 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
 
   @Override
   public void handleEvent(ZoneRenderer zoneRenderer, DragEvent event) {
-    MouseEvent fakeEvent =
-        new MouseEvent(
-            zoneRenderer,
-            dragToMouseEvent.get(event.getId()),
-            event.getTimeStamp(),
-            0,
-            (int) event.getTo().x,
-            (int) event.getTo().y,
-            1,
-            false,
-            MouseEvent.BUTTON1);
-    zoneRenderer.dispatchEvent(fakeEvent);
+    int eventId = dragToMouseEvent.get(event.getId());
+    if (eventId == MouseEvent.MOUSE_PRESSED) {
+      MouseEvent fakeMove = new MouseEvent(
+              zoneRenderer,
+              MouseEvent.MOUSE_MOVED,
+              event.getTimeStamp(),
+              0,
+              (int) event.getTo().x,
+              (int) event.getTo().y,
+              0,
+              false);
+      SwingUtilities.invokeLater(() -> zoneRenderer.dispatchEvent(fakeMove));
+    }
+    MouseEvent fakeEvent = new MouseEvent(
+                zoneRenderer,
+                eventId,
+                event.getTimeStamp(),
+                InputEvent.BUTTON1_DOWN_MASK,
+                (int) event.getTo().x,
+                (int) event.getTo().y,
+                (eventId == MouseEvent.MOUSE_PRESSED)? 1 : 0,
+                false,
+                MouseEvent.BUTTON1);
+    SwingUtilities.invokeLater(() -> zoneRenderer.dispatchEvent(fakeEvent));
   }
 }
