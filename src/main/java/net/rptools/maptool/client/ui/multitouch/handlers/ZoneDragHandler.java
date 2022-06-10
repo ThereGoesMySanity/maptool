@@ -31,6 +31,12 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
           MTGestureEvent.GESTURE_ENDED, MouseEvent.MOUSE_RELEASED,
           MTGestureEvent.GESTURE_CANCELED, MouseEvent.MOUSE_RELEASED);
 
+  private volatile MouseEvent queuedEvent = null;
+  private void sendEvent(ZoneRenderer zoneRenderer) {
+    zoneRenderer.dispatchEvent(queuedEvent);
+    queuedEvent = null;
+  }
+
   @Override
   public void handleEvent(ZoneRenderer zoneRenderer, DragEvent event) {
     int eventId = dragToMouseEvent.get(event.getId());
@@ -46,7 +52,8 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
               false);
       SwingUtilities.invokeLater(() -> zoneRenderer.dispatchEvent(fakeMove));
     }
-    MouseEvent fakeEvent = new MouseEvent(
+    boolean doNewQueue = queuedEvent == null;
+    queuedEvent = new MouseEvent(
                 zoneRenderer,
                 eventId,
                 event.getTimeStamp(),
@@ -56,6 +63,8 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
                 (eventId == MouseEvent.MOUSE_PRESSED)? 1 : 0,
                 false,
                 MouseEvent.BUTTON1);
-    SwingUtilities.invokeLater(() -> zoneRenderer.dispatchEvent(fakeEvent));
+    if (doNewQueue) {
+      SwingUtilities.invokeLater(() -> sendEvent(zoneRenderer));
+    }
   }
 }
