@@ -16,8 +16,8 @@ package net.rptools.maptool.client.ui.multitouch.handlers;
 
 import java.awt.event.InputEvent;
 import java.awt.event.MouseEvent;
-import javax.swing.SwingUtilities;
 import java.util.Map;
+import javax.swing.SwingUtilities;
 import net.rptools.maptool.client.ui.zone.ZoneRenderer;
 import org.mt4j.input.inputProcessors.MTGestureEvent;
 import org.mt4j.input.inputProcessors.componentProcessors.dragProcessor.DragEvent;
@@ -32,6 +32,7 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
           MTGestureEvent.GESTURE_CANCELED, MouseEvent.MOUSE_RELEASED);
 
   private volatile MouseEvent queuedEvent = null;
+
   private void sendEvent(ZoneRenderer zoneRenderer) {
     zoneRenderer.dispatchEvent(queuedEvent);
     queuedEvent = null;
@@ -41,7 +42,8 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
   public void handleEvent(ZoneRenderer zoneRenderer, DragEvent event) {
     int eventId = dragToMouseEvent.get(event.getId());
     if (eventId == MouseEvent.MOUSE_PRESSED) {
-      MouseEvent fakeMove = new MouseEvent(
+      MouseEvent fakeMove =
+          new MouseEvent(
               zoneRenderer,
               MouseEvent.MOUSE_MOVED,
               event.getTimeStamp(),
@@ -53,16 +55,17 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
       SwingUtilities.invokeLater(() -> zoneRenderer.dispatchEvent(fakeMove));
     }
     boolean doNewQueue = queuedEvent == null;
-    queuedEvent = new MouseEvent(
-                zoneRenderer,
-                eventId,
-                event.getTimeStamp(),
-                InputEvent.BUTTON1_DOWN_MASK,
-                (int) event.getTo().x,
-                (int) event.getTo().y,
-                (eventId == MouseEvent.MOUSE_PRESSED)? 1 : 0,
-                false,
-                MouseEvent.BUTTON1);
+    queuedEvent =
+        new MouseEvent(
+            zoneRenderer,
+            eventId,
+            event.getTimeStamp(),
+            InputEvent.BUTTON1_DOWN_MASK,
+            (int) event.getTo().x,
+            (int) event.getTo().y,
+            (eventId == MouseEvent.MOUSE_PRESSED) ? 1 : 0,
+            false,
+            MouseEvent.BUTTON1);
     if (doNewQueue) {
       SwingUtilities.invokeLater(() -> sendEvent(zoneRenderer));
     }
