@@ -33,13 +33,13 @@ public class ZoneDragHandler implements ZoneHandler<DragEvent> {
 
   private volatile MouseEvent queuedEvent = null;
 
-  private void sendEvent(ZoneRenderer zoneRenderer) {
+  private synchronized void sendEvent(ZoneRenderer zoneRenderer) {
     zoneRenderer.dispatchEvent(queuedEvent);
     queuedEvent = null;
   }
 
   @Override
-  public void handleEvent(ZoneRenderer zoneRenderer, DragEvent event) {
+  public synchronized void handleEvent(ZoneRenderer zoneRenderer, DragEvent event) {
     int eventId = dragToMouseEvent.get(event.getId());
     if (eventId == MouseEvent.MOUSE_PRESSED) {
       MouseEvent fakeMove =

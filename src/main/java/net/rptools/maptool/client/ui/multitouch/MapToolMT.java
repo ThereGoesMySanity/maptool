@@ -21,6 +21,6 @@ import org.mt4j.input.inputProcessors.globalProcessors.CursorTracer;
 public class MapToolMT extends AbstractMTApplication {
   public MapToolMT(JFrame window) {
     super(window);
-    registerGlobalInputProcessor(new CursorTracer(this));
+    //registerGlobalInputProcessor(new CursorTracer(this));
   }
 }
